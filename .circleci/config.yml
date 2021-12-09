@@ -2,21 +2,70 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  nexploit: neuralegion/nexploit@2.0.2
-
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  example-job:
+  run-scan:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      # replace with your preferred image
-      - image: cimg/base:stable
+      - image: ubuntu:20.04
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
-      - nexploit/install
+      - checkout
+      - run:
+          name: Install NodeJS and nexploit-cli
+          environment:
+            DEBIAN_FRONTEND: 'noninteractive'
+          command: |
+            apt -y update
+            apt-get -y install libnode-dev node-gyp libssl-dev
+            apt-get -y install nodejs npm
+            npm install -g @neuralegion/nexploit-cli --unsafe-perm=true
+
+      - run:
+          name: "Setup custom environment variables"
+          command: echo 'export NOVI_TOKEN="w2xzq57.nexa.hgbjaol4tfackaszlyqp4l2e3b80fyia"' >> $BASH_ENV
+
+
+      - run:
+          name: Starting repeater
+          command: |
+            nexploit-cli repeater token $NOVI_TOKEN --api https://app.neuralegion.com --bus amqps://amq.app.neuralegion.com:5672'--id $REPEATER'
+      
+          
+          
+
+      - run:
+          name: Start Nexploit Scan 🏁
+          command: |
+            SCAN_ID=$(nexploit-cli scan:run                                                 \
+            --test csrf dom_xss xss header_security secret_tokens open_buckets                 \
+            --name "💎 BrokenCrystals for CircleCI" \
+            --crawler https://brokencrystals.com/  \
+            --repeater $REPEATER                         \
+            --token $NEXPLOIT_TOKEN)          
+            printf "Scan id is: $SCAN_ID"
+            echo "export SCAN_ID=\"$SCAN_ID\"" >> $BASH_ENV
+            
+      - run:
+          name: Output scan URL
+          command: |
+            printf "Scan was started with ID https://nexploit.app/scans/${SCAN_ID}"
+      - run:
+          name: Wait for issues ⏳
+          command: |
+            nexploit-cli scan:polling               \
+            --interval 30s                        \
+            --timeout 10m                         \
+            --token $NEXPLOIT_TOKEN               \
+            --breakpoint high_issue ${SCAN_ID}
+          
+            
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  example-workflow:
+  run-scan-workflow:
     jobs:
-      - example-job
+      - run-scan
