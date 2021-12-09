@@ -23,7 +23,7 @@ jobs:
             apt-get -y install libnode-dev node-gyp libssl-dev
             apt-get -y install nodejs npm
             npm install -g @neuralegion/nexploit-cli --unsafe-perm=true
-
+ 
       - run:
           name: "Setup custom environment variables"
           command: echo 'export NOVI_TOKEN="w2xzq57.nexa.hgbjaol4tfackaszlyqp4l2e3b80fyia"' >> $BASH_ENV
