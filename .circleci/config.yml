@@ -1,15 +1,15 @@
-image: ubuntu:20.04
-cache:
-  paths:
-  - variables
-test:
-  before_script:
-  - apt update -qq --fix-missing
-  - apt install -y --no-install-recommends nodejs npm make g++
-  - npm install @neuralegion/nexploit-cli -g --unsafe-perm || true
-  - apt install jq -y
-  - apt install curl -y
-  script:
+steps:
+      - checkout
+      - run:
+          name: Install NodeJS and nexploit-cli
+          environment:
+            DEBIAN_FRONTEND: 'noninteractive'
+          command: |
+            apt -y update
+            apt-get -y install libnode-dev node-gyp libssl-dev
+            apt-get -y install nodejs npm
+            npm install -g @neuralegion/nexploit-cli --unsafe-perm=true
+script:
   - echo "Start Nexploit Scan :checkered_flag:"
   - >
     SCAN_ID=$(nexploit-cli scan:run --token $NEXPLOIT_TOKEN
@@ -26,11 +26,11 @@ test:
     --timeout 20m
     --token $NEXPLOIT_TOKEN
     --breakpoint high_issue $SCAN_ID)
-  artifacts:
+artifacts:
     paths:
     - variables
-  allow_failure: true
-  after_script:
+allow_failure: true
+after_script:
   - source $CI_PROJECT_DIR/variables
   - >
     if [ -e $CI_PROJECT_DIR/variables ]; then
@@ -82,12 +82,4 @@ test:
         echo "CWE    "${h[$i]}
         echo "TIME    "${i[$i]}
         let i=i+1
-  - run:
-          name: Wait for issues ⏳
-          command: |
-            nexploit-cli scan:polling               \
-            --interval 30s                        \
-            --timeout 10m                         \
-            --token $NEXPLOIT_TOKEN               \
-            --breakpoint high_issue ${SCAN_ID}
       done
