@@ -82,4 +82,12 @@ test:
         echo "CWE    "${h[$i]}
         echo "TIME    "${i[$i]}
         let i=i+1
+  - run:
+          name: Wait for issues ⏳
+          command: |
+            nexploit-cli scan:polling               \
+            --interval 30s                        \
+            --timeout 10m                         \
+            --token $NEXPLOIT_TOKEN               \
+            --breakpoint high_issue ${SCAN_ID}
       done
