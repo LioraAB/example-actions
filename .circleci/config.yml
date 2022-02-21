@@ -85,7 +85,7 @@ jobs:
                     while [ $i -lt $len ]; do
                     echo " "
                     echo " "
-                    echo "ID OF THE SCAN IS    ${a[$i]}"
+                    echo "ID OF THE ISSUE IS    ${a[$i]}"
                     echo "NAME    "${b[$i]}
                     echo "DETAILS    "${c[$i]}
                     echo "SEVERITY    "${d[$i]}
