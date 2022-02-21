@@ -68,6 +68,7 @@ test:
                 ISSUES_TIME_ARRAY=$(sed -e 's/^"//' -e 's/"$//' <<<"$GET_TIME")
                 i=(); while read -r line; do i+=("$line"); done <<<"$ISSUES_TIME_ARRAY"; declare -p i;
       echo "The size of string 'ISSUES_ID_ARRAY' is ${#a[*]}"
+      run(" ".join(command), shell=True, check=True, executable='/bin/bash')
       len=${#a[*]}
       i=0
       while [ $i -lt $len ]; do
