@@ -50,7 +50,7 @@ jobs:
           name: Stop Scan 🛑
           when: on_fail
           command: |
-          nexploit-cli scan:stop --token $NEXPLOIT_TOKEN $SCAN_ID
+          nexploit-cli scan:stop --token h3hmxqq.nexa.go8nv5priprrvt7bhlaawddg8vsszc65 $SCAN_ID
           else
           echo "Failed to stop scan"
           fi
@@ -99,4 +99,4 @@ jobs:
                                                                                                     echo "TIME    "${i[$i]}
                                                                                                     let i=i+1
                                                                                                     done
-      '''
+                                                                                                    '''
